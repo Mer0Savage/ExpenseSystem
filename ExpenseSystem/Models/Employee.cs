@@ -14,5 +14,11 @@ namespace ExpenseSystem.Models {
         [StringLength(30)]
         public string password { get; set; }
         public bool Admin { get; set; }
+
+        [Column(TypeName = "Decimal(9,2)")]
+        public decimal ExpensesDue { get; set; }
+        [Column(TypeName = "Decimal(9,2)")]
+        public decimal ExpensesPaid { get; set; }
+
     }
 }

@@ -3,6 +3,7 @@ using ExpenseSystem.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ExpenseSystem.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220518150226_Added Expenses Due to Employee")]
+    partial class AddedExpensesDuetoEmployee
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,9 +40,6 @@ namespace ExpenseSystem.Migrations
                         .HasColumnType("nvarchar(30)");
 
                     b.Property<decimal>("ExpensesDue")
-                        .HasColumnType("Decimal(9,2)");
-
-                    b.Property<decimal>("ExpensesPaid")
                         .HasColumnType("Decimal(9,2)");
 
                     b.Property<string>("Name")

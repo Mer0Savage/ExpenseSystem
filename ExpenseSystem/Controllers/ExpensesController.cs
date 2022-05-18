@@ -17,10 +17,36 @@ namespace ExpenseSystem.Controllers
         private const string APPROVED = "Approved";
         private const string REJECTED = "Rejected";
         private const string REVIEW = "Review";
+        private const string PAID = "PAID";
 
         public ExpensesController(AppDbContext context)
         {
             _context = context;
+        }
+
+        public async Task<IActionResult> PaidExpenses(int EmpId) {
+            var emp = await _context.Employees.FindAsync(EmpId);
+            if (emp == null) {
+                throw new Exception($"Employee Not Found! - {EmpId} does not exist!");
+            }
+            emp.ExpensesPaid = (from e in _context.Expenses
+                               where e.EmployeeId == EmpId & e.Status == PAID
+                               select new { LineTotal = e.Total }).Sum(x => x.LineTotal);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        public async Task<IActionResult> AddExpensesDue(int EmpId) {
+            var emp = await _context.Employees.FindAsync(EmpId);
+            if (emp == null) {
+                throw new Exception($"Employee Not Found! - {EmpId} does not exist!");
+            }
+            emp.ExpensesDue = (from e in _context.Expenses
+                               where e.EmployeeId == EmpId & e.Status == APPROVED
+                               select new { LineTotal = e.Total }).Sum(x => x.LineTotal);
+
+            await _context.SaveChangesAsync();
+            return Ok();
         }
 
         // GET: api/Expenses
@@ -74,7 +100,9 @@ namespace ExpenseSystem.Controllers
 
             try{
                 await _context.SaveChangesAsync();
-            }catch (DbUpdateConcurrencyException){
+                await AddExpensesDue(expense.EmployeeId);
+                await PaidExpenses(expense.EmployeeId);
+            } catch (DbUpdateConcurrencyException){
                 if (!ExpenseExists(id)){
                     return NotFound();
                 }else{
@@ -83,6 +111,17 @@ namespace ExpenseSystem.Controllers
             }
 
             return NoContent();
+        }
+
+        // PUT: api/Expenses/Paid/5
+        [HttpPut("paid/{id}")]
+        public async Task<IActionResult> PutPaidExpense(int id, Expense expense) {
+            var PrevStat = await _context.Expenses.FindAsync(id);
+            if (PrevStat.Status != APPROVED) {
+                throw new Exception("You can't pay an expense under review or rejected.");
+            }
+            expense.Status = PAID;
+            return await PutExpense(id, expense);
         }
 
         // PUT: api/Expenses/Approve/5
@@ -117,6 +156,8 @@ namespace ExpenseSystem.Controllers
           }
             _context.Expenses.Add(expense);
             await _context.SaveChangesAsync();
+            await AddExpensesDue(expense.EmployeeId);
+            await PaidExpenses(expense.EmployeeId);
 
             return CreatedAtAction("GetExpense", new { id = expense.Id }, expense);
         }
@@ -137,6 +178,8 @@ namespace ExpenseSystem.Controllers
 
             _context.Expenses.Remove(expense);
             await _context.SaveChangesAsync();
+            await AddExpensesDue(expense.EmployeeId);
+            await PaidExpenses(expense.EmployeeId);
 
             return NoContent();
         }
