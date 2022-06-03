@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ExpenseSystem.Models;
+using Microsoft.AspNetCore.Cors;
 
 namespace ExpenseSystem.Controllers
 {

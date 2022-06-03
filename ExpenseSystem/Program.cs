@@ -11,13 +11,16 @@ builder.Services.AddDbContext<AppDbContext>(x => {
     x.UseSqlServer(builder.Configuration.GetConnectionString("AppDbContext"));
 });
 
-builder.Services.AddCors();
+//builder.Services.AddCors();
+builder.Services.AddCors(p => p.AddPolicy("corsapp", builder => {
+    builder.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
+}));
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
-app.UseCors(x => x.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+app.UseCors("corsapp");
 
 app.UseAuthorization();
 

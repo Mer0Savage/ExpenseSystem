@@ -50,7 +50,7 @@ namespace ExpenseSystem.Controllers
         }
 
         // GET: api/Employees/login
-        [HttpGet("login/{email}/{pass}")]
+        [HttpGet("{email}/{pass}")]
         public async Task<ActionResult<Employee>> GetEmployeeLogin(string email, string pass) {
             if (_context.Employees == null) {
                 return NotFound();
